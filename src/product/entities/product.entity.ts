@@ -11,6 +11,9 @@ export class Product {
     name: string
 
     @Column()
+    barcode: string
+
+    @Column()
     description: string
     
     @Column()

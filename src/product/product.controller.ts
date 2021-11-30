@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { FilterProductDto } from './dto/filter.product.dto';
 
 @ApiTags('Product')
 @Controller('api/v1/product')
@@ -15,8 +16,16 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  findAll(
+   @Query() filter: FilterProductDto
+  ) {
+
+    const prod = new FilterProductDto()
+    prod.name = filter.name
+    prod.barcode = filter.barcode
+
+
+    return this.productService.findAll(prod);
   }
 
   @Get(':id')

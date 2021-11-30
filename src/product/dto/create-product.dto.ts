@@ -6,6 +6,9 @@ export class CreateProductDto {
     readonly name: string
 
     @IsString()
+    readonly barcode: string
+
+    @IsString()
     readonly description: string
 
     @IsNumber()

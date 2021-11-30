@@ -1,9 +1,10 @@
+import { FilterProductDto } from './dto/filter.product.dto';
 import { Product } from './entities/product.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Query } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
@@ -17,19 +18,57 @@ export class ProductService {
 
     const product = this.prodRepository.create(createProductDto)
     product.name = product.name.toUpperCase()
+
+    const isRegistered = await this.findByName(product.name)
   
+    if(isRegistered){
+      throw new BadRequestException('Produto já esta cadastrado') 
+    }
 
     return this.prodRepository.save(product)
 
   }
 
-  async findAll() {
+  async findAll(filter: FilterProductDto) {
+
+    const { name, barcode } = filter
+
+    
+    const query = {}
+
+    if(name && !barcode){
+
+      return this.prodRepository.find({
+        where: {
+          name: Like(`%${name.toUpperCase()}%`)
+        }
+      })
+
+    }
+
+    if(barcode && !name){
+
+      return this.prodRepository.find({
+        where: {
+          barcode: Like(`%${barcode}%`)
+        }
+      })
+     
+    }
+
     return this.prodRepository.find()
+    
   }
 
   async findOne(id: number) {
     return this.prodRepository.findOne({id})
   }
+
+  async findByName(name:string):Promise<Product>{
+    return this.prodRepository.findOne({name:name})
+  }
+
+  
 
   async update(id: string, updateProductDto: UpdateProductDto) {
    const product =  await this.prodRepository.preload({

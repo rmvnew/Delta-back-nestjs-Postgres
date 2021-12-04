@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, PrimaryGeneratedColumn,UpdateDateColumn,CreateDateColumn } from "typeorm"
 
 
 @Entity('products')
@@ -24,4 +24,24 @@ export class Product {
 
     @Column()
     category: string
+
+    // @CreateDateColumn({type:'time with time zone'})
+    // @CreateDateColumn({type:'timestamp with time zone'})
+    // @CreateDateColumn({type:'timestamptz'})   
+    // @Column({
+    //     default: () => "NOW()"
+    // })
+    @Column({nullable:true})
+    // @CreateDateColumn()
+    dt_create?: string
+
+    // @UpdateDateColumn({type:'timestamp with time zone'})
+    // @UpdateDateColumn({type:"time with time zone"})
+    // @UpdateDateColumn()
+    // @Column({
+    //     default: () => "NOW()"
+    // })
+    @Column({nullable:true})
+    // @UpdateDateColumn()
+    dt_update?: string
 }

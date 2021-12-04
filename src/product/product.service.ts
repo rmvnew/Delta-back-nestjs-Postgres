@@ -1,3 +1,4 @@
+import { Utils } from './../helper/utils';
 import { FilterProductDto } from './dto/filter.product.dto';
 import { Product } from './entities/product.entity';
 import { BadRequestException, Injectable, NotFoundException, Query } from '@nestjs/common';
@@ -18,6 +19,8 @@ export class ProductService {
 
     const product = this.prodRepository.create(createProductDto)
     product.name = product.name.toUpperCase()
+    product.dt_create = new Utils().getCurrentDate()
+    // product.dt_update = new Utils().getCurrentDate()
 
     const isRegistered = await this.findByName(product.name)
   
@@ -33,10 +36,12 @@ export class ProductService {
 
     const { name, barcode } = filter
 
-    
-    const query = {}
 
     if(name && !barcode){
+
+      if(name === '' || name === undefined || name === null){
+        throw new BadRequestException('O nome não pode estar em branco')
+      }
 
       return this.prodRepository.find({
         where: {
@@ -48,6 +53,10 @@ export class ProductService {
 
     if(barcode && !name){
 
+      if(barcode === '' || barcode === undefined || barcode === null){
+        throw new BadRequestException('O barcode não pode estar em branco')
+      }
+     
       return this.prodRepository.find({
         where: {
           barcode: Like(`%${barcode}%`)
@@ -68,21 +77,23 @@ export class ProductService {
     return this.prodRepository.findOne({name:name})
   }
 
-  
+  async update(id: number, updateProductDto: UpdateProductDto) {
 
-  async update(id: string, updateProductDto: UpdateProductDto) {
-   const product =  await this.prodRepository.preload({
-     id: +id,
-     ...updateProductDto
-   })
+    updateProductDto.dt_update = new Utils().getCurrentDate()
+    
+    const product =  await this.prodRepository.preload({
+      id: id,
+      ...updateProductDto
+    })
 
-   if(!product){
-     throw new NotFoundException(`prodict id: ${id} not found`)
-   }
+    if(!product){
+      throw new NotFoundException(`product id: ${id} not found`)
+    }
 
-   product.name = product.name.toUpperCase()
+    product.name = product.name.toUpperCase()
 
-   return this.prodRepository.save(product)
+    return this.prodRepository.save(product)
+
   }
 
   async remove(id: number) {

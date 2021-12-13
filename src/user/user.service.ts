@@ -18,8 +18,8 @@ export class UserService {
   async create(createUserDto: CreateUserDto):Promise<User> {
 
     const user = this.userRepository.create(createUserDto)
-    user.createAt = new Utils().getCurrentDate()
     user.name = user.name.toUpperCase()
+    user.isActive = true
 
     const isRegistered = await this.findByName(user.name.toUpperCase())
 
@@ -64,7 +64,6 @@ export class UserService {
     }
 
     user.name = user.name.toUpperCase()
-    user.updateAt = new Utils().getCurrentDate()
 
     this.userRepository.save(user)
     

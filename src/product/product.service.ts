@@ -30,8 +30,9 @@ export class ProductService {
   async create(createProductDto: CreateProductDto) {
 
     const product = this.prodRepository.create(createProductDto);
-    product.name = product.name.toUpperCase();
-
+    
+    product.name  = new Utils().validName(product.name)
+    
     const isRegistered = await this.findByName(product.name);
 
     if (isRegistered) {
@@ -128,4 +129,6 @@ export class ProductService {
 
     return this.prodRepository.remove(product);
   }
+
+  
 }

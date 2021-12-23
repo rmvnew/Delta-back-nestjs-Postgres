@@ -11,27 +11,51 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Like, Repository } from 'typeorm';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
+import { FilterProdPaginate } from './dto/filter.products.paginate.dto';
+
+
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly prodRepository: Repository<Product>,
-  ) {}
+  ) { }
 
   async create(createProductDto: CreateProductDto) {
-   
-      const product = this.prodRepository.create(createProductDto);
-      product.name = product.name.toUpperCase();
 
-      const isRegistered = await this.findByName(product.name);
+    const product = this.prodRepository.create(createProductDto);
+    product.name = product.name.toUpperCase();
 
-      if (isRegistered) {
-        throw new BadRequestException('Produto já esta cadastrado');
-      }
+    const isRegistered = await this.findByName(product.name);
 
-      return this.prodRepository.save(product);
-    
+    if (isRegistered) {
+      throw new BadRequestException('Produto já esta cadastrado');
+    }
+
+    return this.prodRepository.save(product);
+
+  }
+
+
+  async getAllProductsPaginate(options: FilterProdPaginate): Promise<Pagination<Product>> {
+    const { name,sort } = options
+    const queryBuilder = this.prodRepository.createQueryBuilder('inf')
+
+    queryBuilder.orderBy('inf.name', `${sort === 'DESC' ? 'DESC' : 'ASC'}`)
+
+    if (options.name) {
+      return paginate<Product>(
+        queryBuilder.where('inf.name like :name', { name: `%${name.toUpperCase()}%` }), options
+      )
+    }
+
+    return paginate<Product>(queryBuilder, options)
   }
 
   async findAll(filter: FilterProductDto) {

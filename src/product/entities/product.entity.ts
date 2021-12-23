@@ -23,7 +23,7 @@ export class Product {
   @Column()
   quantity: number;
 
-  @Column('decimal', { precision: 5, scale: 2 })
+  @Column('decimal', { precision: 7, scale: 2 })
   price: number;
 
   @Column()

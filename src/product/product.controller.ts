@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { FilterProductDto } from './dto/filter.product.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { Product } from './entities/product.entity';
+import { FilterProdPaginate } from './dto/filter.products.paginate.dto';
 
 @ApiTags('Product')
 @Controller('api/v1/product')
@@ -13,6 +16,18 @@ export class ProductController {
   @Post()
   async create(@Body() createProductDto: CreateProductDto) {
     return this.productService.create(createProductDto);
+  }
+
+  @Get('/page')
+  async getAllProductPaginate(
+    @Query() filter: FilterProdPaginate
+  ):Promise<Pagination<Product>>{
+
+    const {limit} = filter
+
+    filter.limit = limit > 10 ? 10 : limit;
+
+    return this.productService.getAllProductsPaginate(filter)
   }
 
   @Get()

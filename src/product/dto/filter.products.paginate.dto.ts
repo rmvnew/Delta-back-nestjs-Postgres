@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsOptional, IsString } from "class-validator"
+import { IsNotEmpty, IsNumberString, IsOptional, IsString, MaxLength, MinLength } from "class-validator"
 
 
 
@@ -26,6 +26,11 @@ export class FilterProdPaginate {
     @IsString()
     @ApiProperty({ required: false })
     name: string
+
+    @IsOptional()
+    @IsNumberString()
+    @ApiProperty({ required: false })
+    barcode: string
 
 
 }

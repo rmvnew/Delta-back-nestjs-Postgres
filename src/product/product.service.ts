@@ -44,16 +44,23 @@ export class ProductService {
 
 
   async getAllProductsPaginate(options: FilterProdPaginate): Promise<Pagination<Product>> {
-    const { name,sort } = options
+    const { name, sort, barcode } = options
     const queryBuilder = this.prodRepository.createQueryBuilder('inf')
 
-    queryBuilder.orderBy('inf.name', `${sort === 'DESC' ? 'DESC' : 'ASC'}`)
+    queryBuilder.orderBy('inf.name', `${options.sort === 'DESC' ? 'DESC' : 'ASC'}`)
 
-    if (options.name) {
+    if (name) {
       return paginate<Product>(
         queryBuilder.where('inf.name like :name', { name: `%${name.toUpperCase()}%` }), options
       )
     }
+
+    if (barcode) {
+      return paginate<Product>(
+        queryBuilder.where('inf.barcode like :barcode', { barcode: `%${barcode}%` }), options
+      )
+    }
+
 
     return paginate<Product>(queryBuilder, options)
   }

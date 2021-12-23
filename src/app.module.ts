@@ -9,7 +9,7 @@ import { UserModule } from './user/user.module';
     ConfigModule.forRoot(),
     ProductModule,
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: 'mysql',
       host: process.env.HOST,
       port: Number(process.env.DB_PORT),
       username: process.env.USERNAME,

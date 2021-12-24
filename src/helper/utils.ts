@@ -1,5 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
-
+import * as bcrypt from 'bcrypt'
 
 export class Utils {
 
@@ -46,6 +46,12 @@ export class Utils {
 
     private validateUser(regex: RegExp, value: string): boolean {
         return regex.test(value)
+    }
+
+    async encryptPassword(pass: string):Promise<string> {
+        const saltOrRounds = 10;
+        const newPass = await bcrypt.hash(pass, saltOrRounds)
+        return newPass
     }
 
 }

@@ -25,5 +25,8 @@ npm install --save @types/config
 
 //Instalação do @nest/config
 npm i @nestjs/config
+
+//Instalação do bcrypt
+npm i bcrypt
 ~~~
 

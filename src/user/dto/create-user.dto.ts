@@ -24,9 +24,10 @@ export class CreateUserDto {
   @IsString()
   email: string;
 
+  @IsOptional()
   @ApiProperty()
   @IsString()
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsBoolean()

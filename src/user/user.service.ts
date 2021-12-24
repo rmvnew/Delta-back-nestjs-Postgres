@@ -25,6 +25,7 @@ export class UserService {
     const user = this.userRepository.create(createUserDto)
 
     user.name = Utils.getInstance().validName(user.name)
+    user.password = await Utils.getInstance().encryptPassword(user.password)
 
     user.isActive = true
 
@@ -33,6 +34,8 @@ export class UserService {
     if (isRegistered) {
       throw new BadRequestException(`Usuário: ${user.name.toUpperCase()} já foi registrado!`)
     }
+
+    
 
     return this.userRepository.save(user);
   }
@@ -71,6 +74,9 @@ export class UserService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
+
+    updateUserDto.password = await Utils.getInstance().encryptPassword(updateUserDto.password)
+
     const user = await this.userRepository.preload({
       id: id,
       ...updateUserDto

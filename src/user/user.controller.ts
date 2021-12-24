@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 
 @ApiTags('User')
@@ -20,12 +21,13 @@ export class UserController {
   @Get()
   findAll(
     @Query() filter: FilterUserDto
-  ):Promise<User | User[]> {
+  ):Promise<Pagination<User>> {
 
-    const filterUser = new FilterUserDto()
-    filterUser.name = filter.name
+    const { limit } = filter
 
-    return this.userService.findAll(filterUser);
+    filter.limit = limit > 10 ? 10 : limit;
+
+    return this.userService.findAll(filter);
   }
 
   @Get(':id')

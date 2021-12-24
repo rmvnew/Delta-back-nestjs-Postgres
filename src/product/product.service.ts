@@ -1,5 +1,4 @@
 import { Utils } from './../helper/utils';
-import { FilterProductDto } from './dto/filter.product.dto';
 import { Product } from './entities/product.entity';
 import {
   BadRequestException,
@@ -14,9 +13,9 @@ import { Like, Repository } from 'typeorm';
 import {
   paginate,
   Pagination,
-  IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
 import { FilterProdPaginate } from './dto/filter.products.paginate.dto';
+import { SortingType } from './dto/product.enum';
 
 
 
@@ -30,9 +29,9 @@ export class ProductService {
   async create(createProductDto: CreateProductDto) {
 
     const product = this.prodRepository.create(createProductDto);
-    
-    product.name  = new Utils().validName(product.name)
-    
+
+    product.name = Utils.getInstance().validName(product.name)
+
     const isRegistered = await this.findByName(product.name);
 
     if (isRegistered) {
@@ -44,11 +43,9 @@ export class ProductService {
   }
 
 
-  async getAllProductsPaginate(options: FilterProdPaginate): Promise<Pagination<Product>> {
-    const { name, sort, barcode } = options
+  async findAll(options: FilterProdPaginate): Promise<Pagination<Product>> {
+    const { name, orderBy, barcode,sort } = options
     const queryBuilder = this.prodRepository.createQueryBuilder('inf')
-
-    queryBuilder.orderBy('inf.name', `${options.sort === 'DESC' ? 'DESC' : 'ASC'}`)
 
     if (name) {
       return paginate<Product>(
@@ -62,39 +59,23 @@ export class ProductService {
       )
     }
 
+    
+
+    if (orderBy == SortingType.ID) {
+      console.log('entrou no id')
+      queryBuilder.orderBy('inf.id', `${sort === 'DESC' ? 'DESC' : 'ASC'}`)
+    } else if (orderBy == SortingType.DATE) {
+      console.log('entrou na data')
+      queryBuilder.orderBy('inf.dt_create', `${sort === 'DESC' ? 'DESC' : 'ASC'}`)
+    } else {
+      console.log('entrou no nome')
+      queryBuilder.orderBy('inf.name', `${sort === 'DESC' ? 'DESC' : 'ASC'}`)
+    }
 
     return paginate<Product>(queryBuilder, options)
   }
 
-  async findAll(filter: FilterProductDto) {
-    const { name, barcode } = filter;
 
-    if (name && !barcode) {
-      if (name === '' || name === undefined || name === null) {
-        throw new BadRequestException('O nome não pode estar em branco');
-      }
-
-      return this.prodRepository.find({
-        where: {
-          name: Like(`%${name.toUpperCase()}%`),
-        },
-      });
-    }
-
-    if (barcode && !name) {
-      if (barcode === '' || barcode === undefined || barcode === null) {
-        throw new BadRequestException('O barcode não pode estar em branco');
-      }
-
-      return this.prodRepository.find({
-        where: {
-          barcode: Like(`%${barcode}%`),
-        },
-      });
-    }
-
-    return this.prodRepository.find();
-  }
 
   async findOne(id: number) {
     return this.prodRepository.findOne({ id });
@@ -105,6 +86,7 @@ export class ProductService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
+
 
     const product = await this.prodRepository.preload({
       id: id,
@@ -130,5 +112,5 @@ export class ProductService {
     return this.prodRepository.remove(product);
   }
 
-  
+
 }

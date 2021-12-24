@@ -8,6 +8,7 @@ import {
 
 @Entity('users')
 export class User {
+  
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -15,7 +16,7 @@ export class User {
   name: string;
 
   @Column()
-  register: number;
+  register: string;
 
   @Column()
   phone: string;

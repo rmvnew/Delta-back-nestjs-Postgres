@@ -3,6 +3,15 @@ import { BadRequestException } from "@nestjs/common";
 
 export class Utils {
 
+    private static instance: Utils
+    private constructor() { }
+    public static getInstance(): Utils {
+        if (!Utils.instance) {
+            Utils.instance = new Utils()
+        }
+        return Utils.instance
+    }
+
 
     getCurrentDate(): string {
 
@@ -22,13 +31,12 @@ export class Utils {
         return `0${number}`.slice(-2)
     }
 
-
     validName(name: string) {
 
         let currentName = name.toUpperCase()
-        currentName = name.replace(/\s+/g, " ")
 
-        //special caracteres
+        currentName = currentName.replace(/\s+/g, " ")
+
         if (this.validateUser(/[!@#$%^&*(),.?":{}|<>]/g, currentName)) {
             throw new BadRequestException('O nome não pode conter caracteres especiais!!')
         }
